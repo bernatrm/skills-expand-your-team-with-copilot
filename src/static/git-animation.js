@@ -143,5 +143,35 @@
   window.addEventListener("resize", resize);
   resize();
   initCommits();
-  animate();
+
+  // Pause animation when the browser tab is hidden to save CPU/battery
+  let animationFrameId = null;
+
+  function startAnimation() {
+    if (animationFrameId !== null) return;
+    function loop() {
+      offset -= SCROLL_SPEED;
+      recycle();
+      draw();
+      animationFrameId = requestAnimationFrame(loop);
+    }
+    animationFrameId = requestAnimationFrame(loop);
+  }
+
+  function stopAnimation() {
+    if (animationFrameId !== null) {
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = null;
+    }
+  }
+
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) {
+      stopAnimation();
+    } else {
+      startAnimation();
+    }
+  });
+
+  startAnimation();
 })();
